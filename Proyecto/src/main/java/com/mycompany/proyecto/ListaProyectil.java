@@ -8,11 +8,13 @@ package com.mycompany.proyecto;
  *
  * @author Snake
  */
+// lista enlazada personalizada para proyectiles
 public class ListaProyectil {
     private NodoProyectil cabeza;
 
-    public void agregar(Proyectil p) {
-        NodoProyectil nuevo = new NodoProyectil(p);
+    // agrega un proyectil al final de la lista
+    public void agregar(Proyectil proyectil) {
+        NodoProyectil nuevo = new NodoProyectil(proyectil);
         if (cabeza == null) {
             cabeza = nuevo;
         } else {
@@ -24,22 +26,26 @@ public class ListaProyectil {
         }
     }
 
-    // Elimina proyectiles que hayan llegado al final del tablero
-    public void limpiarProyectilesInactivos(int limiteTablero) {
-        while (cabeza != null && cabeza.valor.getPosicion() > limiteTablero) {
+    // elimina un nodo especifico de la lista
+    public void eliminar(NodoProyectil nodoEliminar) {
+        if (cabeza == null || nodoEliminar == null) return;
+
+        if (cabeza == nodoEliminar) {
             cabeza = cabeza.siguiente;
+            return;
         }
 
         NodoProyectil actual = cabeza;
-        while (actual != null && actual.siguiente != null) {
-            if (actual.siguiente.valor.getPosicion() > limiteTablero) {
+        while (actual.siguiente != null) {
+            if (actual.siguiente == nodoEliminar) {
                 actual.siguiente = actual.siguiente.siguiente;
-            } else {
-                actual = actual.siguiente;
+                return;
             }
+            actual = actual.siguiente;
         }
     }
 
+    // devuelve el primer nodo de la lista
     public NodoProyectil getCabeza() {
         return cabeza;
     }

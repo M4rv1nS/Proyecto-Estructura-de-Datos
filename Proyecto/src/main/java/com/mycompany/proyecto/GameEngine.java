@@ -8,15 +8,14 @@ package com.mycompany.proyecto;
  *
  * @author Snake
  */
-
 public class GameEngine {
-    
+
     private int monedas;
     private int oleadaActual;
     private int turnoActual;
 
-    private ListaTropa[] carriles; // Lista de tropas aliadas por carril (ej: 5 carriles)
-    private ColaZombies zombiesEnEspera; // Cola de zombies que aún no aparecen
+    private ListaCarriles carriles; // estructura de carriles enlazados
+    private ColaZombies zombiesEnEspera; // cola de zombies que aun no aparecen
     private ListaProyectil proyectiles;
     private Tablero tablero;
 
@@ -24,12 +23,9 @@ public class GameEngine {
         monedas = 800;
         oleadaActual = 1;
         turnoActual = 0;
-        carriles = new ListaTropa[5]; // cada carril es una lista enlazada de tropas
-        tablero = new Tablero();
 
-        for (int i = 0; i < 5; i++) {
-            carriles[i] = new ListaTropa();
-        }
+        carriles = new ListaCarriles(); // lista de carriles con tropas
+        tablero = new Tablero();
 
         zombiesEnEspera = new ColaZombies();
         proyectiles = new ListaProyectil();
@@ -37,10 +33,7 @@ public class GameEngine {
         generarZombiesOleada();
     }
 
-    /**
-     * Genera los zombies para la oleada actual.
-     * La fórmula es: cantidad = oleada * 2 + 3
-     */
+    // genera los zombies para la oleada actual usando la formula oleada*2 + 3
     public void generarZombiesOleada() {
         int cantidad = (oleadaActual * 2) + 3;
         for (int i = 0; i < cantidad; i++) {
@@ -48,34 +41,18 @@ public class GameEngine {
         }
     }
 
-    /**
-     * Coloca una planta en un carril determinado si hay suficiente dinero.
-     * @param fila
-     * @param columna
-     * @param planta
-     * @param costo
-     * @return 
-     */
-public boolean comprarYColocarPlanta(int fila, int columna, Tropa planta, int costo) {
-    if (monedas >= costo && tablero.colocarTropa(fila, columna, planta, false)) {
-        monedas -= costo;
-        planta.setPosicion(fila, columna);
-        return true;
+    // coloca una planta si hay monedas suficientes y la casilla esta libre
+    public boolean comprarYColocarPlanta(int fila, int columna, Tropa planta, int costo) {
+        if (monedas >= costo && tablero.colocarTropa(fila, columna, planta, false)) {
+            monedas -= costo;
+            planta.setPosicion(fila, columna);
+            carriles.obtenerCarril(fila).agregar(planta);
+            return true;
+        }
+        return false;
     }
-    return false;
-}
 
-public void aparecerZombieEn(int fila) {
-    AlienZombie z = zombiesEnEspera.sacar();
-    if (z != null) {
-        tablero.colocarTropa(fila, tablero.getColumnas() - 1, z, true);
-        z.setPosicion(fila, tablero.getColumnas() - 1);
-    }
-}
-
-    /**
-     * Ejecuta un turno completo: proyectiles → ataque de plantas → zombies.
-     */
+    // ejecuta un turno completo: proyectiles, plantas, zombies y agrega nuevo zombie cada 2 turnos
     public void ejecutarTurno() {
         turnoActual++;
 
@@ -83,63 +60,96 @@ public void aparecerZombieEn(int fila) {
         ataquePlantas();
         movimientoZombies();
 
-        // Cada 2 turnos aparece un zombie nuevo
         if (turnoActual % 2 == 0 && !zombiesEnEspera.estaVacia()) {
             AlienZombie nuevo = zombiesEnEspera.sacar();
-            int carril = (int)(Math.random() * 5); // Selecciona carril aleatorio
-            carriles[carril].agregar(nuevo);
+            int fila = (int)(Math.random() * 5);
+            nuevo.setPosicion(fila, tablero.getColumnas() - 1);
+            tablero.colocarTropa(fila, tablero.getColumnas() - 1, nuevo, true);
+            carriles.obtenerCarril(fila).agregar(nuevo);
         }
     }
 
-    /**
-     * Mueve proyectiles y aplica daño si impactan a un zombie.
-     */
+    // mueve los proyectiles y aplica dano si impactan un zombie
     private void moverProyectiles() {
         NodoProyectil actual = proyectiles.getCabeza();
         while (actual != null) {
-            // Lógica: buscar enemigo en trayectoria y aplicar daño
-            // En esta versión base no se implementa el mapa exacto, se simula
+            Proyectil p = actual.valor;
+            p.avanzar();
+
+            Casilla destino = tablero.obtenerCasilla(p.getCarril(), p.getPosicion());
+            if (destino != null && destino.estaOcupada() && destino.esZombie) {
+                destino.tropa.recibirDanio(p.getDano());
+                if (destino.tropa.getVida() <= 0) {
+                    tablero.eliminarTropa(p.getCarril(), p.getPosicion());
+                    monedas += 300;
+                }
+                proyectiles.eliminar(actual);
+                break;
+            }
+            if (p.getPosicion() >= tablero.getColumnas()) {
+                proyectiles.eliminar(actual);
+                break;
+            }
             actual = actual.siguiente;
         }
     }
 
-    /**
-     * Ejecuta ataques de plantas si hay enemigos en frente.
-     */
+    // ejecuta los ataques de las plantas si hay enemigos al frente
     private void ataquePlantas() {
         for (int i = 0; i < 5; i++) {
-            NodoTropa nodo = carriles[i].getCabeza();
+            NodoTropa nodo = carriles.obtenerCarril(i).getCabeza(); // se cambio carriles[i] por metodo obtenerCarril
             while (nodo != null) {
                 if (nodo.valor instanceof PlantaDistancia p) {
-                    p.disparar(proyectiles);
-                } else if (nodo.valor instanceof PlantaMelee) {
-                    // Buscar si hay enemigo justo al frente y atacarlo
+                    if (p.puedeDisparar()) {
+                        proyectiles.agregar(new Proyectil(p.getAtaque(), i));
+                        p.disparar(proyectiles); // se anadio la lista como argumento porque el metodo lo requiere
+                    }
+                } else if (nodo.valor instanceof PlantaMelee m) {
+                    int col = m.getColumna();
+                    Casilla frente = tablero.obtenerCasilla(i, col + 1);
+                    if (frente != null && frente.estaOcupada() && frente.esZombie) {
+                        frente.tropa.recibirDanio(m.getAtaque());
+                        if (frente.tropa.getVida() <= 0) {
+                            tablero.eliminarTropa(i, col + 1);
+                            monedas += 300;
+                        }
+                    }
                 }
                 nodo = nodo.siguiente;
             }
         }
     }
 
-    /**
-     * Mueve los zombies una casilla, o atacan si hay una planta delante.
-     */
+    // mueve los zombies o ataca si hay una planta adelante
     private void movimientoZombies() {
         for (int i = 0; i < 5; i++) {
-            NodoTropa nodo = carriles[i].getCabeza();
+            NodoTropa nodo = carriles.obtenerCarril(i).getCabeza();
             while (nodo != null) {
-                if (nodo.valor instanceof AlienZombie) {
-                    // Lógica de avanzar o atacar
+                if (nodo.valor instanceof AlienZombie z) {
+                    int col = z.getColumna();
+                    Casilla adelante = tablero.obtenerCasilla(i, col - 1);
+                    if (adelante != null && adelante.estaOcupada() && !adelante.esZombie) {
+                        adelante.tropa.recibirDanio(z.getAtaque());
+                        if (adelante.tropa.getVida() <= 0) {
+                            tablero.eliminarTropa(i, col - 1);
+                        }
+                    } else {
+                        tablero.eliminarTropa(i, col);
+                        z.setPosicion(i, col - 1);
+                        tablero.colocarTropa(i, col - 1, z, true);
+                    }
                 }
                 nodo = nodo.siguiente;
             }
         }
     }
 
-    /**
-     * Verifica si algún zombie ha llegado al final del tablero.
-     */
+    // verifica si hay zombies en la columna 0 (pierde el jugador)
     public boolean verificarDerrota() {
-        // Lógica para definir si algún zombie llegó al extremo izquierdo
+        for (int i = 0; i < 5; i++) {
+            Casilla c = tablero.obtenerCasilla(i, 0);
+            if (c.estaOcupada() && c.esZombie) return true;
+        }
         return false;
     }
 
@@ -154,6 +164,12 @@ public void aparecerZombieEn(int fila) {
     public int getTurnoActual() {
         return turnoActual;
     }
+
+    public ListaProyectil getProyectiles() {
+        return proyectiles;
+    }
+
+    public Tablero getTablero() {
+        return tablero;
+    }
 }
-
-

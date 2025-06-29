@@ -10,59 +10,58 @@ package com.mycompany.proyecto;
  */
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class PanelControl extends JPanel {
     private GameEngine motor;
     private PanelTablero panelTablero;
 
-    private JLabel lblMonedas, lblTurno, lblOleada;
-    private JButton btnPlanta1, btnPlanta2, btnTurno;
+    private JLabel lblMonedas;
+    private JLabel lblOleada;
+    private JLabel lblTurno;
 
     public PanelControl(GameEngine motor, PanelTablero panelTablero) {
         this.motor = motor;
         this.panelTablero = panelTablero;
-
         setLayout(new FlowLayout());
 
+        // etiquetas de estado
         lblMonedas = new JLabel("Monedas: " + motor.getMonedas());
-        lblTurno = new JLabel("Turno: " + motor.getTurnoActual());
         lblOleada = new JLabel("Oleada: " + motor.getOleadaActual());
-
-        btnPlanta1 = new JButton("Comprar Planta Distancia (¢250)");
-        btnPlanta2 = new JButton("Comprar Planta Melee (¢400)");
-        btnTurno = new JButton("Siguiente Turno");
+        lblTurno = new JLabel("Turno: " + motor.getTurnoActual());
 
         add(lblMonedas);
-        add(lblTurno);
         add(lblOleada);
-        add(btnPlanta1);
-        add(btnPlanta2);
+        add(lblTurno);
+
+        // boton para seleccionar planta de distancia
+        JButton btnDistancia = new JButton("Planta Distancia (300)");
+        btnDistancia.addActionListener(e -> {
+            PanelTablero.plantaSeleccionada = "distancia"; // se elige este tipo
+        });
+
+        // boton para seleccionar planta melee
+        JButton btnMelee = new JButton("Planta Melee (200)");
+        btnMelee.addActionListener(e -> {
+            PanelTablero.plantaSeleccionada = "melee"; // se elige este tipo
+        });
+
+        // boton para ejecutar turno
+        JButton btnTurno = new JButton("Siguiente Turno");
+        btnTurno.addActionListener(e -> {
+            motor.ejecutarTurno();
+            actualizarEstado();
+            panelTablero.actualizar();
+        });
+
+        add(btnDistancia);
+        add(btnMelee);
         add(btnTurno);
-
-        btnPlanta1.addActionListener((ActionEvent e) -> {
-            boolean colocada = motor.comprarYColocarPlanta(0, new PlantaDistancia(), 250);
-            if (colocada) actualizarHUD();
-        });
-
-        btnPlanta2.addActionListener((ActionEvent e) -> {
-            boolean colocada = motor.comprarYColocarPlanta(1, new PlantaMelee(), 400);
-            if (colocada) actualizarHUD();
-        });
-
-        btnTurno.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                motor.ejecutarTurno();
-                actualizarHUD();
-                panelTablero.actualizar();
-            }
-        });
     }
 
-    private void actualizarHUD() {
+    // actualiza etiquetas
+    private void actualizarEstado() {
         lblMonedas.setText("Monedas: " + motor.getMonedas());
-        lblTurno.setText("Turno: " + motor.getTurnoActual());
         lblOleada.setText("Oleada: " + motor.getOleadaActual());
+        lblTurno.setText("Turno: " + motor.getTurnoActual());
     }
 }
-

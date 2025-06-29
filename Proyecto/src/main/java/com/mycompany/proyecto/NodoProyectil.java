@@ -8,6 +8,7 @@ package com.mycompany.proyecto;
  *
  * @author Snake
  */
+// nodo para la lista de proyectiles
 public class NodoProyectil {
     public Proyectil valor;
     public NodoProyectil siguiente;
@@ -15,8 +16,5 @@ public class NodoProyectil {
     public NodoProyectil(Proyectil valor) {
         this.valor = valor;
         this.siguiente = null;
-    
-    }}
-
- 
-    
+    }
+}

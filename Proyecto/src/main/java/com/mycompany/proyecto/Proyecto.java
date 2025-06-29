@@ -4,15 +4,17 @@
 
 package com.mycompany.proyecto;
 
-/**
- *
- * @author Snake
- */
+import javax.swing.JFrame;
+
 public class Proyecto {
 
     public static void main(String[] args) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            VentanaJuego ventana = new VentanaJuego();
+            ventana.setVisible(true);
+        });
 
 }
 
     }
-}
+
