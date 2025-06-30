@@ -1,10 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package com.mycompany.proyecto;
-
-import javax.swing.JFrame;
 
 public class Proyecto {
 
