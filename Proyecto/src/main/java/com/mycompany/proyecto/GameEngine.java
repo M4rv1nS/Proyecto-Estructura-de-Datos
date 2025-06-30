@@ -24,11 +24,11 @@ public class GameEngine {
     }
 
     public void generarZombiesOleada() {
-        
+
         int cantidad = (oleadaActual * 2) + 3;
-        
+
         for (int i = 0; i < cantidad; i++) {
-            
+
             zombiesEnEspera.agregar(new AlienZombie());
         }
     }
@@ -40,37 +40,36 @@ public class GameEngine {
     }
 
     public boolean comprarYColocarPlanta(int fila, int columna, String tipoPlanta) {
-        
-        if (!enPreparacion) {
-            
+        int costo = tipoPlanta.equals("distancia") ? 250 : 400;
+        Tropa planta = tipoPlanta.equals("distancia") ? new PlantaDistancia() : new PlantaMelee();
+
+        if (monedas < costo) {
+            JOptionPane.showMessageDialog(null, "No tienes suficientes monedas.");
             return false;
         }
-        
-        int costo = tipoPlanta.equals("distancia") ? 250 : 400;
-        
-        Tropa planta = tipoPlanta.equals("distancia") ? new PlantaDistancia() : new PlantaMelee();
-        
-        if (monedas >= costo && tablero.colocarTropa(fila, columna, planta, false)) {
-            
-            monedas -= costo;
-            return true;
+
+        if (!tablero.colocarTropa(fila, columna, planta, false)) {
+            JOptionPane.showMessageDialog(null, "La casilla ya está ocupada.");
+            return false;
         }
-        return false;
+
+        monedas -= costo;
+        return true;
     }
 
     public void ejecutarTurno() {
-        
+
         if (enPreparacion) {
             return;
         }
-        
+
         turnoActual++;
         moverProyectiles();
         ataquePlantas();
         movimientoZombies();
 
         if (turnoActual % 2 == 0 && !zombiesEnEspera.estaVacia()) {
-            
+
             AlienZombie nuevo = zombiesEnEspera.sacar();
             int fila = (int) (Math.random() * 5);
             nuevo.setPosicion(fila, tablero.getColumnas() - 1);
@@ -78,12 +77,12 @@ public class GameEngine {
         }
 
         if (zombiesEnEspera.estaVacia() && !hayZombiesEnTablero()) {
-            
+
             if (oleadaActual >= 3) {
-                
+
                 JOptionPane.showMessageDialog(null, "¡Has ganado!");
                 System.exit(0);
-                
+
             } else {
                 enPreparacion = true;
                 oleadaActual++;
@@ -100,23 +99,29 @@ public class GameEngine {
     private void moverProyectiles() {
         ListaProyectil.NodoProyectil actual = proyectiles.getCabeza();
         ListaProyectil.NodoProyectil anterior = null;
+
         while (actual != null) {
             Proyectil p = actual.valor;
             p.avanzar();
             boolean eliminar = false;
+
             if (p.getPosicion() >= tablero.getColumnas()) {
                 eliminar = true;
             } else {
                 Casilla destino = tablero.obtenerCasilla(p.getCarril(), p.getPosicion());
                 if (destino != null && destino.estaOcupada() && destino.esZombie) {
                     destino.tropa.recibirDanio(p.getDano());
+
                     if (destino.tropa.getVida() <= 0) {
+                        int recompensa = ((AlienZombie) destino.tropa).getRecompensa();
                         tablero.eliminarTropa(p.getCarril(), p.getPosicion());
-                        monedas += ((AlienZombie) destino.tropa).getRecompensa();
+                        monedas += recompensa;
                     }
+
                     eliminar = true;
                 }
             }
+
             if (eliminar) {
                 if (anterior == null) {
                     proyectiles.cabeza = actual.siguiente;
@@ -126,45 +131,45 @@ public class GameEngine {
             } else {
                 anterior = actual;
             }
+
             actual = actual.siguiente;
         }
     }
 
     private void ataquePlantas() {
-        
+
         Lista<Lista<Casilla>>.Nodo<Lista<Casilla>> carrilNodo = tablero.carriles.getCabeza();
-        
+
         while (carrilNodo != null) {
-            
+
             Lista<Casilla> carril = carrilNodo.valor;
             Lista<Casilla>.Nodo<Casilla> casillaNodo = carril.getCabeza();
-            
+
             while (casillaNodo != null) {
-                
+
                 Casilla c = casillaNodo.valor;
-                
+
                 if (c.estaOcupada() && !c.esZombie) {
-                    
+
                     Tropa t = c.tropa;
-                    
+
                     if (t instanceof PlantaDistancia pd && pd.puedeDisparar(turnoActual)) {
-                        
-                        proyectiles.agregar(new Proyectil(t.getAtaque(), t.getFila(), t.getColumna()));
+                        proyectiles.agregar(new Proyectil(pd.getAtaque(), pd.getFila(), pd.getColumna()));
                         pd.disparar(turnoActual);
-                        
+
                     } else if (t instanceof PlantaMelee pm) {
-                        
+
                         int colFrente = t.getColumna() + 1;
-                        
+
                         if (colFrente < 9) {
-                            
+
                             Casilla frente = tablero.obtenerCasilla(t.getFila(), colFrente);
-                            
+
                             if (frente != null && frente.estaOcupada() && frente.esZombie) {
                                 frente.tropa.recibirDanio(pm.getAtaque());
-                                
+
                                 if (frente.tropa.getVida() <= 0) {
-                                    
+
                                     tablero.eliminarTropa(t.getFila(), colFrente);
                                     monedas += 300;
                                 }
@@ -172,75 +177,75 @@ public class GameEngine {
                         }
                     }
                 }
-                
+
                 casillaNodo = casillaNodo.siguiente;
             }
-            
+
             carrilNodo = carrilNodo.siguiente;
         }
     }
 
     private void movimientoZombies() {
-        
+
         Lista<Lista<Casilla>>.Nodo<Lista<Casilla>> carrilNodo = tablero.carriles.getCabeza();
-        
+
         while (carrilNodo != null) {
-            
+
             Lista<Casilla> carril = carrilNodo.valor;
             Lista<Casilla>.Nodo<Casilla> casillaNodo = carril.getCabeza();
-            
+
             while (casillaNodo != null) {
-                
+
                 Casilla c = casillaNodo.valor;
-                
+
                 if (c.estaOcupada() && c.esZombie) {
-                    
+
                     AlienZombie z = (AlienZombie) c.tropa;
                     int colActual = z.getColumna();
                     int colFrente = colActual - 1;
-                    
+
                     if (colFrente >= 0) {
-                        
+
                         Casilla frente = tablero.obtenerCasilla(z.getFila(), colFrente);
-                        
+
                         if (frente != null && frente.estaOcupada() && !frente.esZombie) {
-                            
+
                             frente.tropa.recibirDanio(z.getAtaque());
-                            
+
                             if (frente.tropa.getVida() <= 0) {
-                                
+
                                 tablero.eliminarTropa(z.getFila(), colFrente);
-                                
+
                             }
                         } else {
-                            
+
                             tablero.eliminarTropa(z.getFila(), colActual);
                             z.setPosicion(z.getFila(), colFrente);
                             tablero.colocarTropa(z.getFila(), colFrente, z, true);
-                            
+
                         }
                     }
                 }
-                
+
                 casillaNodo = casillaNodo.siguiente;
             }
-            
+
             carrilNodo = carrilNodo.siguiente;
         }
     }
 
     private boolean hayZombiesEnTablero() {
-        
+
         for (int i = 0; i < 5; i++) {
-            
+
             Lista<Casilla> carril = tablero.carriles.obtener(i);
-            
+
             for (int j = 0; j < 9; j++) {
-                
+
                 Casilla c = carril.obtener(j);
-                
+
                 if (c.estaOcupada() && c.esZombie) {
-                    
+
                     return true;
                 }
             }
@@ -249,13 +254,13 @@ public class GameEngine {
     }
 
     public boolean verificarDerrota() {
-        
+
         for (int i = 0; i < 5; i++) {
-            
+
             Casilla c = tablero.obtenerCasilla(i, 0);
-            
+
             if (c.estaOcupada() && c.esZombie) {
-                
+
                 return true;
             }
         }

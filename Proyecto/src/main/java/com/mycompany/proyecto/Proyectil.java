@@ -3,13 +3,13 @@ package com.mycompany.proyecto;
 public class Proyectil {
 
     private int dano;
-    private int posicion;
     private int carril;
+    private int posicion;
 
-    public Proyectil(int dano, int carril, int columnaInicial) {
+    public Proyectil(int dano, int carril, int posicion) {
         this.dano = dano;
         this.carril = carril;
-        this.posicion = columnaInicial + 1;
+        this.posicion = posicion;
     }
 
     public void avanzar() {
@@ -20,11 +20,11 @@ public class Proyectil {
         return dano;
     }
 
-    public int getPosicion() {
-        return posicion;
-    }
-
     public int getCarril() {
         return carril;
+    }
+
+    public int getPosicion() {
+        return posicion;
     }
 }

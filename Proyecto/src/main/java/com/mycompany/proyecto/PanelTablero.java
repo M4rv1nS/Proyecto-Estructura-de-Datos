@@ -27,7 +27,7 @@ public class PanelTablero extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 
                 // Solo permitir colocar plantas en la fase de preparación y si hay una planta seleccionada
-                if (plantaSeleccionada != null && motor.enPreparacion()) {
+                if (plantaSeleccionada != null) {
                     int columna = e.getX() / tamanoCelda;
                     int fila = e.getY() / tamanoCelda;
                     

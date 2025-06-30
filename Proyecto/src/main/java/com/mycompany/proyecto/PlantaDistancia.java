@@ -2,29 +2,20 @@ package com.mycompany.proyecto;
 
 public class PlantaDistancia extends Tropa {
 
-    private boolean proyectilActivo;
-    private int ultimoDisparo;
+    private int ultimoTurnoDisparo;
 
     public PlantaDistancia() {
-        this.vida = 5;
+        this.vida = 4;
         this.ataque = 2;
-        this.proyectilActivo = false;
-        this.ultimoDisparo = -2;
-        this.fila = -1;
-        this.columna = -1;
+        this.ultimoTurnoDisparo = -2;
     }
 
     public boolean puedeDisparar(int turnoActual) {
-        return !proyectilActivo && (turnoActual - ultimoDisparo >= 2);
+        return (turnoActual - ultimoTurnoDisparo) >= 2;
     }
 
     public void disparar(int turnoActual) {
-        proyectilActivo = true;
-        ultimoDisparo = turnoActual;
-    }
-
-    public void proyectilDestruido() {
-        proyectilActivo = false;
+        this.ultimoTurnoDisparo = turnoActual;
     }
 
     @Override
