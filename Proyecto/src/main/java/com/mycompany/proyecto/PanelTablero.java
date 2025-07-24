@@ -4,34 +4,34 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 public class PanelTablero extends JPanel {
 
     private final GameEngine motor;
     private final int filas = 5;
     private final int columnas = 9;
-    private final int tamanoCelda = 80;
+    private final int tamanoCeldaAncho = 103;
+    private final int tamanoCeldaAlto = 131;
     public static String plantaSeleccionada = null;
 
     private Image imgZombie;
     private Image imgLanzaGuisantes;
     private Image imgMelee;
+    private Image imgFondo;
 
     private Lista<NodoZombie> previewZombies = new Lista<>();
 
     public PanelTablero(GameEngine motor) {
         this.motor = motor;
-        setPreferredSize(new Dimension(columnas * tamanoCelda, filas * tamanoCelda));
-        setBackground(Color.LIGHT_GRAY);
+        setPreferredSize(new Dimension(columnas * tamanoCeldaAncho, filas * tamanoCeldaAlto));
         cargarImagenes();
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (plantaSeleccionada != null && !motor.estaDerrotado()) {
-                    int columna = e.getX() / tamanoCelda;
-                    int fila = e.getY() / tamanoCelda;
+                    int columna = e.getX() / tamanoCeldaAncho;
+                    int fila = e.getY() / tamanoCeldaAlto;
 
                     if (columna >= 0 && columna < columnas && fila >= 0 && fila < filas) {
                         if (motor.comprarYColocarPlanta(fila, columna, plantaSeleccionada)) {
@@ -47,24 +47,24 @@ public class PanelTablero extends JPanel {
         });
     }
 
-    private void cargarImagenes() {
-        imgZombie = cargarImagen("/com/mycompany/proyecto/img/zombiealien.webp");
-        imgLanzaGuisantes = cargarImagen("/com/mycompany/proyecto/img/lanzaguisantes.webp");
-        imgMelee = cargarImagen("/com/mycompany/proyecto/img/melee.webp");
-    }
-
     private Image cargarImagen(String ruta) {
-        java.net.URL location = getClass().getResource(ruta);
+        java.net.URL location = getClass().getClassLoader().getResource("com/mycompany/proyecto/img/" + ruta);
         if (location == null) {
-            System.err.println("⚠ No se pudo cargar la imagen: " + ruta);
-            return new BufferedImage(60, 60, BufferedImage.TYPE_INT_ARGB); // imagen vacía
+            System.err.println("⚠ Imagen no encontrada: " + ruta);
+            return null;
         }
         return new ImageIcon(location).getImage();
     }
 
+    private void cargarImagenes() {
+        imgZombie = cargarImagen("zombiealien.png");
+        imgLanzaGuisantes = cargarImagen("lanzaguisantes.png");
+        imgMelee = cargarImagen("melee.png");
+        imgFondo = cargarImagen("fondo.png");
+    }
+
     public void cargarZombiesPreview(ColaZombies cola) {
         previewZombies = new Lista<>();
-
         int fila = 0;
         int columna = columnas;
 
@@ -95,30 +95,41 @@ public class PanelTablero extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Grilla
-        g.setColor(Color.GRAY);
-        for (int i = 0; i <= filas; i++) {
-            g.drawLine(0, i * tamanoCelda, columnas * tamanoCelda, i * tamanoCelda);
-        }
-        for (int j = 0; j <= columnas; j++) {
-            g.drawLine(j * tamanoCelda, 0, j * tamanoCelda, filas * tamanoCelda);
+        // Fondo (no escalar)
+        if (imgFondo != null) {
+            g.drawImage(imgFondo, 0, 0, columnas * tamanoCeldaAncho, filas * tamanoCeldaAlto, null);
+        } else {
+            g.setColor(Color.GREEN);
+            g.fillRect(0, 0, columnas * tamanoCeldaAncho, filas * tamanoCeldaAlto);
         }
 
-        // Plantas y Zombies reales en el tablero
+        // Plantas y Zombies
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
                 Casilla c = motor.getTablero().obtenerCasilla(i, j);
-                if (c.estaOcupada()) {
-                    int x = j * tamanoCelda + 10;
-                    int y = i * tamanoCelda + 10;
+                if (c.estaOcupada() && c.tropa != null) {
+                    int x = j * tamanoCeldaAncho;
+                    int y = i * tamanoCeldaAlto;
 
-                    if (c.esZombie) {
-                        g.drawImage(imgZombie, x, y, 60, 60, this);
-                    } else {
-                        if (c.tropa instanceof PlantaDistancia) {
-                            g.drawImage(imgLanzaGuisantes, x, y, 60, 60, this);
+                    if (c.esZombie && imgZombie != null) {
+                        int anchoZombie = 120;
+                        int altoZombie = 150;
+                        int offsetX = x + (tamanoCeldaAncho - anchoZombie) / 2;
+                        int offsetY = y + (tamanoCeldaAlto - altoZombie);
+                        g.drawImage(imgZombie, offsetX, offsetY, anchoZombie, altoZombie, null);
+                    } else if (!c.esZombie) {
+                        int anchoPlanta = 70;
+                        int altoPlanta = 80;
+                        int offsetX = x + (tamanoCeldaAncho - anchoPlanta) / 2;
+                        int offsetY = y + (tamanoCeldaAlto - altoPlanta) / 2;
+
+                        if (c.tropa instanceof PlantaDistancia && imgLanzaGuisantes != null) {
+                            g.drawImage(imgLanzaGuisantes, offsetX, offsetY, anchoPlanta, altoPlanta, null);
+                        } else if (c.tropa instanceof PlantaMelee && imgMelee != null) {
+                            g.drawImage(imgMelee, offsetX, offsetY, anchoPlanta, altoPlanta, null);
                         } else {
-                            g.drawImage(imgMelee, x, y, 60, 60, this);
+                            g.setColor(Color.GREEN);
+                            g.fillOval(offsetX, offsetY, anchoPlanta, altoPlanta);
                         }
                     }
                 }
@@ -129,20 +140,38 @@ public class PanelTablero extends JPanel {
         ListaProyectil.NodoProyectil actualProyectil = motor.proyectiles.getCabeza();
         while (actualProyectil != null) {
             Proyectil p = actualProyectil.valor;
+            int x = p.getPosicion() * tamanoCeldaAncho + tamanoCeldaAncho / 2 - 10;
+            int y = p.getCarril() * tamanoCeldaAlto + tamanoCeldaAlto / 2 - 10;
             g.setColor(Color.YELLOW);
-            g.fillOval(p.getPosicion() * tamanoCelda + 30, p.getCarril() * tamanoCelda + 30, 20, 20);
+            g.fillOval(x, y, 20, 20);
             actualProyectil = actualProyectil.siguiente;
         }
 
-        // Zombies de preview en preparación
+        // Zombies en preparación
         if (motor.enPreparacion()) {
             Lista<NodoZombie>.Nodo<NodoZombie> actual = previewZombies.getCabeza();
             while (actual != null) {
-                int x = actual.valor.columna * tamanoCelda + 10;
-                int y = actual.valor.fila * tamanoCelda + 10;
-                g.drawImage(imgZombie, x, y, 60, 60, this);
+                int x = actual.valor.columna * tamanoCeldaAncho;
+                int y = actual.valor.fila * tamanoCeldaAlto;
+                if (imgZombie != null) {
+                    int anchoZombie = 120;
+                    int altoZombie = 150;
+                    int offsetX = x + (tamanoCeldaAncho - anchoZombie) / 2;
+                    int offsetY = y + (tamanoCeldaAlto - altoZombie);
+                    g.drawImage(imgZombie, offsetX, offsetY, anchoZombie, altoZombie, null);
+                }
                 actual = actual.siguiente;
             }
+        }
+
+        // Mostrar mensaje de victoria si aplica
+        if (motor.isVictoriaMostrada()) {
+            g.setFont(new Font("Arial", Font.BOLD, 60));
+            g.setColor(Color.YELLOW);
+            String mensaje = "¡VICTORIA!";
+            int x = (getWidth() - g.getFontMetrics().stringWidth(mensaje)) / 2;
+            int y = getHeight() / 2;
+            g.drawString(mensaje, x, y);
         }
     }
 

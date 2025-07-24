@@ -35,10 +35,8 @@ public class PanelControl extends JPanel {
         add(lblTurno);
         add(lblContador);
 
-        // Mostrar preview en el tablero
         panelTablero.cargarZombiesPreview(motor.getZombiesEnEspera());
 
-        // Panel para seleccionar plantas
         panelSeleccionPlantas = new JPanel();
         panelSeleccionPlantas.setBorder(BorderFactory.createTitledBorder("Selecciona tus plantas"));
 
@@ -52,7 +50,6 @@ public class PanelControl extends JPanel {
         panelSeleccionPlantas.add(btnPlantaMeleeSelect);
         add(panelSeleccionPlantas);
 
-        // Botón para iniciar el ataque
         btnIniciarAtaque = new JButton("Iniciar Ataque");
         btnIniciarAtaque.addActionListener(e -> {
             if (plantasSeleccionadas.getTamano() == 0) {
@@ -69,7 +66,6 @@ public class PanelControl extends JPanel {
             panelTablero.limpiarZombiesPreview();
             actualizarEstado();
 
-            // Quitar panel de selección y vista zombies
             remove(panelSeleccionPlantas);
             panelSeleccionPlantas = null;
 
@@ -78,25 +74,39 @@ public class PanelControl extends JPanel {
                 panelVistaZombies = null;
             }
 
-            // Mostrar botones de colocación según selección
             mostrarBotonesDeColocacion();
-
             revalidate();
             repaint();
         });
         add(btnIniciarAtaque);
 
-        // Botón para siguiente turno
         btnAccion = new JButton("Siguiente Turno");
         btnAccion.setEnabled(false);
         btnAccion.addActionListener(e -> {
             motor.ejecutarTurno();
+
+            if (motor.isVictoriaMostrada()) {
+                btnAccion.setEnabled(false);
+                return;
+            }
+
+            if (motor.getTurnoActual() < 30 &&
+                motor.getZombiesEnEspera().estaVacia() &&
+                !motor.enPreparacion() &&
+                !motor.hayZombiesEnTablero()) {
+
+                motor.setPreparacion(true);
+                motor.generarZombiesOleada();
+                panelTablero.cargarZombiesPreview(motor.getZombiesEnEspera());
+
+                reiniciarFasePreparacion();
+            }
+
             actualizarEstado();
             panelTablero.actualizar();
         });
         add(btnAccion);
 
-        // Timer del contador de preparación
         timerPreparacion = new Timer(1000, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 segundosPreparacion++;
@@ -123,7 +133,7 @@ public class PanelControl extends JPanel {
 
     private void mostrarBotonesDeColocacion() {
         if (panelColocacionPlantas != null) {
-            remove(panelColocacionPlantas); // quitar panel viejo si existe
+            remove(panelColocacionPlantas);
         }
 
         panelColocacionPlantas = new JPanel();
@@ -136,19 +146,47 @@ public class PanelControl extends JPanel {
             btn.addActionListener(e -> {
                 PanelTablero.plantaSeleccionada = tipo;
                 JOptionPane.showMessageDialog(null, "Planta seleccionada: " + tipo);
-                panelTablero.actualizar();  // ← fuerza el repintado del tablero
+                panelTablero.actualizar();
             });
             panelColocacionPlantas.add(btn);
             actual = actual.siguiente;
         }
 
-        add(panelColocacionPlantas);  // agregamos el nuevo panel
+        add(panelColocacionPlantas);
     }
 
     private void actualizarEstado() {
         lblMonedas.setText("Monedas: " + motor.getMonedas());
         lblOleada.setText("Oleada: " + motor.getOleadaActual());
         lblTurno.setText("Turno: " + motor.getTurnoActual());
+    }
+
+    private void reiniciarFasePreparacion() {
+        fase = "PREPARACION";
+        btnIniciarAtaque.setEnabled(true);
+        btnAccion.setEnabled(false);
+
+        plantasSeleccionadas = new Lista<>();
+
+        panelSeleccionPlantas = new JPanel();
+        panelSeleccionPlantas.setBorder(BorderFactory.createTitledBorder("Selecciona tus plantas"));
+
+        btnPlantaDistanciaSelect = new JButton("Agregar Planta Distancia");
+        btnPlantaMeleeSelect = new JButton("Agregar Planta Melee");
+
+        btnPlantaDistanciaSelect.addActionListener(e -> seleccionarPlanta("distancia"));
+        btnPlantaMeleeSelect.addActionListener(e -> seleccionarPlanta("melee"));
+
+        panelSeleccionPlantas.add(btnPlantaDistanciaSelect);
+        panelSeleccionPlantas.add(btnPlantaMeleeSelect);
+
+        add(panelSeleccionPlantas);
+
+        segundosPreparacion = 0;
+        timerPreparacion.start();
+
+        revalidate();
+        repaint();
     }
 
     public String getFase() {

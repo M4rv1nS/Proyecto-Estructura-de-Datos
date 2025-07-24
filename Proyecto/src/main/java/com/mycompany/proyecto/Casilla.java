@@ -13,4 +13,14 @@ public class Casilla {
     public boolean estaOcupada() {
         return tropa != null;
     }
+
+    public void colocarTropa(Tropa tropa, boolean esZombie) {
+        this.tropa = tropa;
+        this.esZombie = esZombie;
+    }
+
+    public void eliminarTropa() {
+        this.tropa = null;
+        this.esZombie = false;
+    }
 }

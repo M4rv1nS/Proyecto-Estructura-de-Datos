@@ -1,16 +1,16 @@
 package com.mycompany.proyecto;
 
-import javax.swing.JOptionPane;
-
 public class GameEngine {
 
     private int monedas;
+    private int maxTurnos = 30;
     private int oleadaActual;
     private int turnoActual;
     private boolean enPreparacion;
     private Tablero tablero;
     private ColaZombies zombiesEnEspera;
     ListaProyectil proyectiles;
+    private boolean victoriaMostrada = false;
 
     public GameEngine() {
         monedas = 800;
@@ -47,12 +47,11 @@ public class GameEngine {
         Tropa planta = tipoPlanta.equals("distancia") ? new PlantaDistancia() : new PlantaMelee();
 
         if (monedas < costo) {
-            JOptionPane.showMessageDialog(null, "No tienes suficientes monedas.");
             return false;
         }
 
-        if (!tablero.colocarTropa(fila, columna, planta, false)) {
-            JOptionPane.showMessageDialog(null, "La casilla ya está ocupada.");
+        boolean exito = tablero.colocarTropa(fila, columna, planta, false);
+        if (!exito) {
             return false;
         }
 
@@ -61,7 +60,7 @@ public class GameEngine {
     }
 
     public void ejecutarTurno() {
-        if (enPreparacion) return;
+        if (enPreparacion || estaDerrotado() || victoriaMostrada) return;
 
         turnoActual++;
 
@@ -69,27 +68,29 @@ public class GameEngine {
         ataquePlantas();
         movimientoZombies();
 
-        if (turnoActual % 2 == 0 && !zombiesEnEspera.estaVacia()) {
+        // Zombies solo aparecen si aún no llegamos al turno 30
+        if (turnoActual <= maxTurnos && turnoActual % 2 == 0 && !zombiesEnEspera.estaVacia()) {
             AlienZombie nuevo = zombiesEnEspera.sacar();
             int fila = (int) (Math.random() * 5);
             nuevo.setPosicion(fila, tablero.getColumnas() - 1);
             tablero.colocarTropa(fila, tablero.getColumnas() - 1, nuevo, true);
         }
 
-        if (zombiesEnEspera.estaVacia() && !hayZombiesEnTablero()) {
-            if (oleadaActual >= 3) {
-                JOptionPane.showMessageDialog(null, "¡Has ganado!");
-                System.exit(0);
-            } else {
+        // Verificar derrota
+        if (verificarDerrota()) return;
+
+        // Verificar victoria después del turno 30
+        if (turnoActual >= maxTurnos && !hayZombiesEnTablero() && zombiesEnEspera.estaVacia()) {
+            victoriaMostrada = true;
+        }
+
+        // Si terminó la oleada y aún faltan oleadas antes del turno 30
+        if (!hayZombiesEnTablero() && zombiesEnEspera.estaVacia() && turnoActual < maxTurnos) {
+            if (oleadaActual < 3) {
                 enPreparacion = true;
                 oleadaActual++;
                 generarZombiesOleada();
             }
-        }
-
-        if (verificarDerrota()) {
-            JOptionPane.showMessageDialog(null, "¡Has perdido!");
-            System.exit(0);
         }
     }
 
@@ -209,7 +210,7 @@ public class GameEngine {
         }
     }
 
-    private boolean hayZombiesEnTablero() {
+    public boolean hayZombiesEnTablero() {
         for (int i = 0; i < 5; i++) {
             Lista<Casilla> carril = tablero.carriles.obtener(i);
             for (int j = 0; j < 9; j++) {
@@ -232,6 +233,7 @@ public class GameEngine {
         return false;
     }
 
+    // Getters públicos
     public int getMonedas() {
         return monedas;
     }
@@ -255,8 +257,12 @@ public class GameEngine {
     public boolean enPreparacion() {
         return enPreparacion;
     }
-    public boolean estaDerrotado() {
-    return verificarDerrota();
-}
 
+    public boolean estaDerrotado() {
+        return verificarDerrota();
+    }
+
+    public boolean isVictoriaMostrada() {
+        return victoriaMostrada;
+    }
 }

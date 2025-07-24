@@ -27,6 +27,7 @@ public class VentanaJuego extends JFrame {
         // agregar paneles a la ventana principal
         add(panelTablero, BorderLayout.CENTER);  // tablero al centro
         add(panelControl, BorderLayout.SOUTH);   // controles abajo
+        panelTablero.repaint();
 
         setVisible(true);  // mostrar la ventana
     }
