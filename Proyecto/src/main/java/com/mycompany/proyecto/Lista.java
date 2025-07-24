@@ -10,7 +10,7 @@ public class Lista<T> {
         tamano = 0;
     }
 
-    public void agregar(T valor) {
+    public void agregarFinal(T valor) {
         Nodo<T> nuevo = new Nodo<>(valor);
         if (cabeza == null) {
             cabeza = nuevo;
@@ -24,6 +24,17 @@ public class Lista<T> {
         tamano++;
     }
 
+    public boolean contiene(T valor) {
+        Nodo<T> actual = cabeza;
+        while (actual != null) {
+            if (actual.valor.equals(valor)) {
+                return true;
+            }
+            actual = actual.siguiente;
+        }
+        return false;
+    }
+
     public T obtener(int indice) {
         if (indice < 0 || indice >= tamano) {
             return null;
@@ -35,7 +46,7 @@ public class Lista<T> {
         return actual.valor;
     }
 
-    public int tamano() {
+    public int getTamano() {
         return tamano;
     }
 
@@ -44,7 +55,6 @@ public class Lista<T> {
     }
 
     public class Nodo<T> {
-
         public T valor;
         public Nodo<T> siguiente;
 
@@ -54,3 +64,4 @@ public class Lista<T> {
         }
     }
 }
+

@@ -16,10 +16,10 @@ public class Tablero {
             
             for (int j = 0; j < columnas; j++) {
                 
-                carril.agregar(new Casilla());
+                carril.agregarFinal(new Casilla());
                 
             }
-            carriles.agregar(carril);
+            carriles.agregarFinal(carril);
         }
     }
 
