@@ -4,36 +4,30 @@ import javax.swing.*;
 import java.awt.*;
 
 public class VentanaJuego extends JFrame {
+
     private GameEngine motor;
     private PanelTablero panelTablero;
     private PanelControl panelControl;
+    private ReproductorMP3 musicaJuego;
 
     public VentanaJuego() {
-        
-        // titulo y configuracion basica
         setTitle("Plants-Fide");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // inicializar el motor del juego
-        motor = new GameEngine();
+        musicaJuego = new ReproductorMP3();
+        musicaJuego.reproducir("/com/mycompany/proyecto/audio/cancionJuego.mp3");
 
-        // inicializar los paneles de tablero y control
+        motor = new GameEngine();
         panelTablero = new PanelTablero(motor);
         panelControl = new PanelControl(motor, panelTablero);
 
-        // agregar paneles a la ventana principal
-        add(panelTablero, BorderLayout.CENTER);  // tablero al centro
-        add(panelControl, BorderLayout.SOUTH);   // controles abajo
+        add(panelTablero, BorderLayout.CENTER);
+        add(panelControl, BorderLayout.SOUTH);
         panelTablero.repaint();
 
-        setVisible(true);  // mostrar la ventana
+        setVisible(true);
     }
-
-//    // metodo main que lanza el juego
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new MenuPrincipal());
-//    }
 }

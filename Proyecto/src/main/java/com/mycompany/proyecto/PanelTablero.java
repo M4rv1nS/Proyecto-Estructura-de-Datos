@@ -18,6 +18,7 @@ public class PanelTablero extends JPanel {
     private Image imgLanzaGuisantes;
     private Image imgMelee;
     private Image imgFondo;
+    private Image imgGuisante; // ← Añadido
 
     private Lista<NodoZombie> previewZombies = new Lista<>();
 
@@ -61,6 +62,7 @@ public class PanelTablero extends JPanel {
         imgLanzaGuisantes = cargarImagen("lanzaguisantes.png");
         imgMelee = cargarImagen("melee.png");
         imgFondo = cargarImagen("fondo.png");
+        imgGuisante = cargarImagen("guisante.png"); // ← Añadido
     }
 
     public void cargarZombiesPreview(ColaZombies cola) {
@@ -95,7 +97,7 @@ public class PanelTablero extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Fondo (no escalar)
+        // Fondo
         if (imgFondo != null) {
             g.drawImage(imgFondo, 0, 0, columnas * tamanoCeldaAncho, filas * tamanoCeldaAlto, null);
         } else {
@@ -136,14 +138,20 @@ public class PanelTablero extends JPanel {
             }
         }
 
-        // Proyectiles
+        // Proyectiles con imagen de guisante
         ListaProyectil.NodoProyectil actualProyectil = motor.proyectiles.getCabeza();
         while (actualProyectil != null) {
             Proyectil p = actualProyectil.valor;
             int x = p.getPosicion() * tamanoCeldaAncho + tamanoCeldaAncho / 2 - 10;
             int y = p.getCarril() * tamanoCeldaAlto + tamanoCeldaAlto / 2 - 10;
-            g.setColor(Color.YELLOW);
-            g.fillOval(x, y, 20, 20);
+
+            if (imgGuisante != null) {
+                g.drawImage(imgGuisante, x, y, 30, 30, null);
+            } else {
+                g.setColor(Color.YELLOW);
+                g.fillOval(x, y, 20, 20); // Fallback
+            }
+
             actualProyectil = actualProyectil.siguiente;
         }
 
@@ -164,7 +172,7 @@ public class PanelTablero extends JPanel {
             }
         }
 
-        // Mostrar mensaje de victoria si aplica
+        // Mensaje de victoria
         if (motor.isVictoriaMostrada()) {
             g.setFont(new Font("Arial", Font.BOLD, 60));
             g.setColor(Color.YELLOW);

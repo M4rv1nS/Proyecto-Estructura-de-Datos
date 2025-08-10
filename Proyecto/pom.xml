@@ -15,7 +15,15 @@
         <maven.compiler.release>20</maven.compiler.release>
         <exec.mainClass>com.mycompany.proyecto.Main</exec.mainClass>
     </properties>
-
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.googlecode.soundlibs</groupId>
+            <artifactId>jlayer</artifactId>
+            <version>1.0.1.4</version>
+        </dependency>
+    </dependencies>
+    
     <build>
         <resources>
             <resource>
