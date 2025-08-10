@@ -1,11 +1,14 @@
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/AlienZombie.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/Casilla.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/ColaZombies.java
+/home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/CoordenadaZombie.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/GameEngine.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/Lista.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/ListaCarriles.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/ListaProyectil.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/ListaTropa.java
+/home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/Main.java
+/home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/MenuPrincipal.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/NodoProyectil.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/NodoTropa.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/NodoZombie.java
@@ -14,7 +17,6 @@
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/PlantaDistancia.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/PlantaMelee.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/Proyectil.java
-/home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/Proyecto.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/Tablero.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/Tropa.java
 /home/charlie/Documentos/Fidelitas/5-Cuatri/Estructura de Datos/Proyecto/proyecto_git_hub/Proyecto-Estructura-de-Datos/Proyecto/src/main/java/com/mycompany/proyecto/VentanaJuego.java

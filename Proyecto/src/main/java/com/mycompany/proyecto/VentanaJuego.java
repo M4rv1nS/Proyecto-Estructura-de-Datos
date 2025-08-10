@@ -32,8 +32,8 @@ public class VentanaJuego extends JFrame {
         setVisible(true);  // mostrar la ventana
     }
 
-    // metodo main que lanza el juego
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VentanaJuego());
-    }
+//    // metodo main que lanza el juego
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> new MenuPrincipal());
+//    }
 }
